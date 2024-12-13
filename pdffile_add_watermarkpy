@@ -1,0 +1,40 @@
+from pypdf import PdfReader,PdfWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+import os
+def creat_watermark(water_text,watermark_pdf_path):
+    """
+    Create a pdf containing the watermark text.
+    """
+    c=canvas.Canvas(watermark_pdf_path,pagesize=letter)
+    c.setFont("Helvetica-Bold", 40)
+    c.setFillAlpha(0.3)
+    c.drawCentredString(300,400,water_text)
+    c.save()
+def add_watermark(input_pdf_path,output_pdf_Path,watermark_pdf_path):
+    """
+    Add watermark to each page of the input pdf.
+    """
+    reader=PdfReader(input_pdf_path)
+    writer=PdfWriter()
+    watrmark_reader=PdfReader(watermark_pdf_path)
+    watermark_page=watermark_reader.pages[0]
+    for page in reader.pages:
+        page.merge_page(watermark_page)
+        writer.add_page(page)
+        with open(output_pdf_Path,"wb") as output_file:
+            writer.write(output_file)
+input_pdf_path="./Resume.pdf"
+output_pdf_path="./"
+watermark_pdf_path="C:/Downloads"
+try:
+    os.makedirs(os.path.dirname(output_pdf_path),exist_ok=True)
+    creat_watermark("confidential",watermark_pdf_path)
+    add_watermark(input_pdf_path,output_pdf_path,watermark_pdf_path)
+    print(f"watermarked pdf saved as {output_pdf_path}")
+except FileNotFoundError:
+    print("Error: file is not in :", input_pdf_path)
+except PermissionError:
+    print(f"Error:permission denied.Make sure files are not open and you have write permission")
+except Exception as e:
+    print("An unexpected Error occured ", e)
