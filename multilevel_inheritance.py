@@ -18,8 +18,7 @@ class golden_retrever(dog):
         self.color=color
     def show_details(self):
         dog.show_details(self)
-        print(f"color {self.color}")
-     
+        print(f"color {self.color}")  
 o=golden_retrever("tommy","Black")
 o.show_details()
 print(golden_retrever.mro())
