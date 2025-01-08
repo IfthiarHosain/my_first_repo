@@ -22,7 +22,7 @@ def organise_files(directory):
             category=key
             break
         catagory_folder=os.path.join(directory,catagory)
-        os.makedirs(category_folder,exist_ok=True)
+        os.makedirs(catagory_folder,exist_ok=True)
         new_path=os.path.join(catagory_folder,item)
         shutil.move(item_path,new_path)
         print(f"moved:{item}-> {catagory}")
