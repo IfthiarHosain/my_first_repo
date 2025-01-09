@@ -6,5 +6,5 @@ print(next(gen))
 print(next(gen))
 print(next(gen))
 print(next(gen))
- for j in gen:
+for j in gen:
     print(j)
