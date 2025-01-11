@@ -21,3 +21,4 @@ if __name__== "__main__":
     ]
 with multiprocessing.Pool(processes=3) as pool:
     pool.starmap(downloadfile,task)
+p=multiprocessing.Process(target=downloadfile(url,task))
