@@ -1,5 +1,8 @@
+from flask import Flask, render_template, request, redirect, url_for
 import csv
 import os
+app = Flask(__name__)
+FILE_NAME = "expenditure_data.csv"
 file_name="expenditure_data.csv"
 def initilaize_file():
     if not os.path.exists(file_name):
@@ -10,7 +13,7 @@ def add_transaction(transaction_type,category,amount,date):
     with open(file_name,mode='a',newline='') as file:
         writer=csv.writer(file)
         writer.writerow([transaction_type,category,amount,date])
-    print('transaction added successfully!\n')
+   
 def calculate_totals():
     total_income =0
     total_expense= 0
@@ -33,37 +36,44 @@ def calculate_totals():
     balance=total_income - total_expense
     return total_income,total_expense,balance
     
-def main():
+@app.route('/')
+def index():
+    total_income, total_expense, balance = calculate_totals()
+    return f"""
+    <h1>Monthly Expenditure Tracker</h1>
+    <p>Total Income: ${total_income:.2f}</p>
+    <p>Total Expenses: ${total_expense:.2f}</p>
+    <p>Remaining Balance: ${balance:.2f}</p>
+    <h3>Add Transaction</h3>
+    <form action='/add' method='post'>
+        <label>Type:</label>
+        <select name='type'>
+            <option value='Income'>Income</option>
+            <option value='Expense'>Expense</option>
+        </select>
+        <br>
+        <label>Category:</label>
+        <input type='text' name='category' required><br>
+        <label>Amount:</label>
+        <input type='number' name='amount' step='0.01' required><br>
+        <label>Date:</label>
+        <input type='date' name='date' required><br>
+        <button type='submit'>Add Transaction</button>
+    </form>
+    """
+
+@app.route('/add', methods=['POST'])
+def add():
+    transaction_type = request.form['type']
+    category = request.form['category']
+    amount = request.form['amount']
+    date = request.form['date']
+    add_transaction(transaction_type, category, float(amount), date)
+    return redirect(url_for('index'))
+
+if __name__ == "__main__":
     initilaize_file()
-    while True:
-        print('\nMonthly expenditure tracker')
-        print('1.Add income')
-        print('2.Add expense')
-        print('3.view summary')
-        print('4.Exit')
-        choice=input('enter the choice')
-        if choice=='1':
-            category=input('enter income source:')
-            amount=float(input('enter amount'))
-            date=input('enter date (YYY-MM-DD):')
-            add_transaction('income',category,amount,date)
-        elif choice =='2':
-            category= input('enter the expense catagory')
-            amount= float(input('enter amount'))
-            date=input('enter date(YYY-MM-DD)')
-            add_transaction('Expense',category,amount,date)
-        elif choice=='3':
-            total_income, total_expense, balance = calculate_totals()
-            print(f'total income: ${total_income:.2f}')
-            print(f'total expense: ${total_expense:.2f}')
-            print(f'total balance:${balance:.2f}')
-        elif choice=='4':
-            print('Exiting the program')
-            break
-        else :
-            print('Invalid choice.Please Try again')
-if __name__ == '__main__':
-    main()
+    app.run(debug=True)
 
 
 

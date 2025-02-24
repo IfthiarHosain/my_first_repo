@@ -10,3 +10,13 @@ income,job,5000.0,2025-02-02
 Expense,2000,2000.0,2025-02-03
 income,job,5000.0,2025-02-02
 Expense, grocery,2000.0,2025-02-10
+Income,business,3000.0,2025-01-01
+Expense,grocery,500.0,2025-01-09
+Income,business,1000.0,2025-02-01
+Income,business,500.0,2025-02-01
+Income,business,500.0,2025-01-02
+Income,grocery,1000.0,2025-01-02
+Income,business,500.0,2025-01-02
+Expense,business,200.0,2025-01-02
+Expense,business,500.0,2025-01-02
+Income,Member collection,500.0,2025-02-24
