@@ -1,17 +1,10 @@
-from flask import Flask,request,redirect,url_for
+from flask import Flask,render_template,request,redirect,url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
 app=Flask(__name__)
 app.config['SQLAlCHEMY_DATABASE_URL']='posgresql://username:cowboy@localhost/expenditure_db'
 app.config['SQlAlCHEMY_TRACK_MODIFICATION']= False
 db=SQLAlchemy(app)
-FILE_NAME = "expenditure_data.db"
-file_name="expenditure_data.db"
-def initilaize_file():
-    if not os.path.exists(file_name):
-        with open(file_name,mode='w',newline='') as file:
-            writer=db.writer(file)
-            writer.writerow(['Type','Catagory','Amount','Date','customer'])
 class Transaction(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     type=db.Column(db.String(10),nullable= False)
@@ -23,36 +16,13 @@ class Customer(db.Model):
     id=db.Column(db.integer,primary_key=True)
     name=db.Column(db.string(100),unique=True,nullable=False)
     Transaction= db.relationship('transaction',backref='customer',lazy=True)
-def calculate_totals():
-    total_income =0
-    total_expense= 0
-    transactions =[]
-
-    with open(file_name,mode='r') as file:
-        reader=db.reader(file)
-        next(reader)
-        for row in reader:
-            if row:
-                transaction_type,category,amount,date,customer =row  
-                try:
-                  amount=float(amount)
-                  if transaction_type.lower()=='income':
-                    total_income += amount
-                  elif transaction_type.lower()== 'expense':
-                    total_expense += amount
-                except ValueError:
-                    continue
-            
-    balance=total_income - total_expense
-    return total_income,total_expense,balance,transactions
-    
 @app.before_frist_request
 def create_tables():
     db.create_all
 def add_transactions(transaction_type,amount,date,category,customer_name=''):
     customer=None
     if transaction_type.lower() == 'income' and customer_name :
-        customer= Customer.query.filter_by(name=customer_name ='').frist()
+        customer= Customer.query.filter_by(name=customer_name='').frist()
         if not customer:
             customer=Customer(name=customer_name)
             db.session.add(customer)
