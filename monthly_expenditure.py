@@ -1,21 +1,46 @@
 from flask import Flask,request,jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
-app=Flask(__name__)
-app.config['SQLAlCHEMY_DATABASE_URL']='posgresql://username:cowboy@localhost/expenditure_db'
-app.config['SQlAlCHEMY_TRACK_MODIFICATION']= False
-db=SQLAlchemy(app)
+import psycopg2
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:dhaka1971@localhost/expenditure_db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
+db = SQLAlchemy(app)
+print("Database connection initialized successfully!")
+DB_NAME='expendituredb'
+DB_USER='username'
+DB_PASSWORD='cowboy'
+DB_HOST='localhost'
+DB_PORT='5432'
+try:
+    conn=psycopg2.connect(
+        dbname= DB_NAME,
+        user= DB_USER,
+        password= DB_PASSWORD,
+        host= DB_HOST,
+        port= DB_PORT
+    )
+    print ('connected to posgresql succesfully')
+    cursor=conn.cursor()
+    cursor.execute('select version();')
+    db_version = cursor.fetchone()
+    print ('database version:', db_version)
+    cursor.close()
+    conn.close()
+except Exception as e :
+    print("Error connecting to posgresql:", e)
+
 class Transaction(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     type=db.Column(db.String(10),nullable= False)
     category=db.Column(db.String(50),nullable=False)
-    amount=db.Column(db.float,nullable=False)
+    amount=db.Column(db.Float,nullable=False)
     date=db.Column(db.String(10),nullable=False)
-    customer_id=db.Column(db.Integer,db.Foreignkey('customer.id'),nullable=True)
+    customer_id=db.Column(db.Integer,db.ForeignKey('customer.id'),nullable=True)
 class Customer(db.Model):
-    id=db.Column(db.integer,primary_key=True)
-    name=db.Column(db.string(100),unique=True,nullable=False)
-    Transaction= db.relationship('transaction',backref='customer',lazy=True)
+    id=db.Column(db.Integer,primary_key=True)
+    name=db.Column(db.String(100),unique=True,nullable=False)
+    Transaction= db.relationship('Transaction',backref='customer',lazy=True)
 def initialize_database():
     with app.app_context():
         db.create_all()
